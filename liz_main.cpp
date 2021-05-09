@@ -15,6 +15,7 @@
 #define SHOW_VEC(x) for(auto i:x) { std::cout<<i<<" ";} std::cout<<std::endl
 
 #include "windows_console_tools/win_colors.h"
+
 struct threesome {
     int from;
     int to;
@@ -57,14 +58,29 @@ struct threesome {
 };
 
 class node {
-
 public:
-    node(int weight) : city_name(weight) {};
+    node(int weight) : city_name(weight) {
+        weights = {};
+        nodes = {};
+    };
+
+    node &operator=(const node &other) {
+        if (this == &other) return *this;
+
+        city_name = other.city_name;
+        weights = other.weights;
+        for (auto i:other.nodes)
+            nodes.push_back(i);
+
+    }
 
     node(const node &other) {
+
         city_name = other.city_name;
-        nodes = other.nodes;
         weights = other.weights;
+        for (auto i:other.nodes)
+            nodes.push_back(i);
+
     }
 
 
@@ -82,14 +98,16 @@ public:
     }
 
 
-    void append(const node &other, threesome sth) {
-
+    void append(const node other, threesome sth) {
+        node *ptr_to_node = search(sth.from);
         if (city_name == sth.from) {
             nodes.push_back(new node(other));
             weights.push_back(sth.weight * -1);
             return;
         }
-        node *ptr_to_node = search(sth.from);
+        assert(other.city_name == sth.to);
+        assert(ptr_to_node->city_name == sth.from);
+
         ptr_to_node->nodes.push_back(new node(other));
         ptr_to_node->weights.push_back(sth.weight * -1);
 
@@ -118,12 +136,11 @@ public:
     }
 
     node *search(int value) {
+
         if (this->city_name == value) return this;
-
-        node *ptr_to_return = nullptr;
-
         if (nodes.empty()) return nullptr;
 
+        node *ptr_to_return = nullptr;
         for (auto &i : nodes) {
 
             ptr_to_return = i->search(value);
@@ -137,8 +154,11 @@ public:
 
     friend std::ostream &operator<<(std::ostream &out, const node &dt) {
         out << "name " << dt.city_name << "\n";
-        SHOW_VEC(dt.nodes);
-        //   SHOW_VEC(dt.weights);
+
+        for (auto i:dt.nodes) {
+            out << i->city_name << "\t";
+
+        }
         return out;
     }
 
@@ -148,8 +168,9 @@ public:
 int road_trips(int from, int to, int pssngrs, node &tree);
 
 
-node find_in_vec(const std::vector<node>& data , int search);
+node *find_in_vec(const std::vector<node> &data, int search);
 
+int finn_position_in_vec(const std::vector<node> &data, int search);
 int main() {
     int number_of_cities;
     int number_of_roads;
@@ -170,7 +191,7 @@ int main() {
         tab.emplace_back(temp_from, temp_to, temp_weight);
 
     }
-   // SHOW_VEC(tab);
+    // SHOW_VEC(tab);
 
     for (auto &i : tab) {
         i.weight--; //bo kierowca zajmuje niepotrzebne miesce podobno
@@ -197,30 +218,30 @@ int main() {
             forest.push_back(node(i.from));
         }
 
-        if (std::find(forest.begin(), forest.end(), i.to) ==
-            forest.end()) { //to samo co wyzej ale moglo byc tak ze jakis wierzcholek byl w to, a nie bylo go w from
+        if (std::find(forest.begin(), forest.end(), i.to) == forest.end()) {
+            //to samo co wyzej ale moglo byc tak ze jakis wierzcholek byl w to, a nie bylo go w from
 
             forest.push_back(node(i.to));
         }
     }
-      SHOW_VEC(forest);
-    std::vector<threesome> additional_tab;
+    SHOW_VEC(forest);
+
     unsigned i = 0;
-
-
-
     while (forest.size() > 1) {
-        node to_city = find_in_vec( forest,tab[i].to);
 
-        find_in_vec( forest,tab[i].from).append(to_city, tab[i]);
-        //forest[tab[i].to].city_name = MILLION;
-        forest.erase(std::find(forest.begin(), forest.end(), to_city));
+        node *to_city = find_in_vec(forest, tab[i].to);
+        assert(to_city != nullptr);
+
+        find_in_vec(forest, tab[i].from)->append(*to_city, tab[i]);
+
+        forest.erase(forest.begin() + finn_position_in_vec(forest,tab[i].to));
 
         i++;
     }
 
 
     SHOW_VEC(forest);
+
     node minimal_spanning_tree = forest[0];
 
     int from_user;
@@ -247,21 +268,6 @@ int main() {
 
 }
 
-// Liczba_przejazdow = liczba_osob_do_przejazdu / (Liczba_osob-1)
-// maksymalne ale minimalne drzewo rozpinające
-// las
-// 2 tablice struktur albo kolejki
-// W2:
-
-//Y(x) = -x
-//
-//Y(60) = -60
-//
-//Y(20) = -20
-//
-//I 60 > 20 a y(60) = -60 < y(20) = -20
-
-//wystarczy zwykly unsigned int
 
 
 int road_trips(int from, int to, int pssngrs, node &tree) {
@@ -273,20 +279,23 @@ int road_trips(int from, int to, int pssngrs, node &tree) {
     assert(false);
 }
 
-node  find_in_vec(const std::vector<node>& data, int search) {
+node *find_in_vec(const std::vector<node> &data, int search) {
 
-    for(auto i:data)
-        if(i.search(search) != nullptr)
-            return *i.search(search) ;
+    for (auto i:data) {
 
+        node *temp = i.search(search);
+        if (temp != nullptr) {
+            return temp;
+        }
+    }
     assert(false);
 }
 
+int finn_position_in_vec(const std::vector<node> &data, int search) {
 
-void test_me_daddy(){
-    std::cout<<cc(white)<<"constructor: ";
-    node tree(6);
-    assert(tree.city_name == 6);
-    std::cout<<cc(green)<< "[ok]";
-
+    for (int i = 0; i < data.size(); i++) {
+        if (data[i].city_name == search)
+            return i;
+    }
+    assert(false);
 }
