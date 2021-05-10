@@ -79,7 +79,7 @@ public:
 //            nodes.push_back(new node(*i));
 
         for (int i = 0; i < other.nodes.size(); i++) {
-            if(i>=other.weights.size()) break;
+            //if(i>=other.weights.size()) break;
             nodes.push_back(new node(*(other.nodes[i])));
 
             assert(i<=other.weights.size());
@@ -167,7 +167,7 @@ public:
     ~node() = default;
 
     friend std::ostream &operator<<(std::ostream &out, const node &dt) {
-        out << cc(red) << "name: " << dt.city_name << "\n";
+        out << cc(red) << "name: " << dt.city_name <<" children: "<<dt.nodes.size()<< "\n";
 
         for (auto i:dt.nodes) {
             out << cc(yellow) << i->city_name << "\t";
@@ -315,10 +315,10 @@ int road_trips(int from, int to, int pssngrs, node &tree) {
 
 
 node *find_in_vec(std::vector<node> &data, int city) {
-
+    node *temp = nullptr;
     for (unsigned i = 0; i < data.size(); ++i) {
 
-        node *temp = data[i].search(city);
+        temp = data[i].search(city);
         if (temp != nullptr) return temp;
 
     }
