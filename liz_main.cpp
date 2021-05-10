@@ -212,7 +212,7 @@ int main() {
         tab.emplace_back(temp_from, temp_to, temp_weight);
 
     }
-    // SHOW_VEC(tab);
+    ///SHOW_VEC(tab);
 
     for (auto &i : tab) {
         i.weight--; //bo kierowca zajmuje niepotrzebne miesce podobno
@@ -264,10 +264,9 @@ int main() {
         int position = find_position_in_vec(forest, tab[i].to);
         if (position != forest.size()) {
 
-
-            from_city_ptr->nodes.push_back(new node(forest[position]));
-            from_city_ptr->weights.push_back(tab[i].weight * -1);
-            //  from_city_ptr->append(new node(forest[position]), tab[i]);
+         //   from_city_ptr->nodes.push_back(new node(forest[position]));
+         //   from_city_ptr->weights.push_back(tab[i].weight * -1);
+         from_city_ptr->append(new node(forest[position]), tab[i]);
             forest.erase(forest.begin() + position);
 
         }
@@ -280,6 +279,7 @@ int main() {
 
     node minimal_spanning_tree = forest[0];
     std::cout << cc(red) << minimal_spanning_tree;
+
     int from_user;
     int to_user;
     int how_many_people;
@@ -333,6 +333,60 @@ int find_position_in_vec(const std::vector<node> &data, int search) {
         if (data[i].city_name == search)
             return i;
     }
-    // assert(false);
     return data.size();
+}
+
+void test_me_daddy(){
+    std::cout<<cc(white)<<"constructor: ";
+    node tree(6);
+    assert(tree.city_name == 6);
+    std::cout<<cc(green)<< "[ok]" <<std::endl;
+
+    std::cout<<cc(white)<<"copy constructor: ";
+    node tree2(tree);
+    assert(tree2.city_name == 6);
+    std::cout<<cc(green)<< "[ok]" <<std::endl;
+
+    std::cout<<cc(white)<<"operator ==: ";
+    assert(tree2.city_name == tree.city_name);
+    std::cout<<cc(green)<< "[ok]" <<std::endl;
+
+    std::cout<<cc(white)<<"operator !=: ";
+    assert(tree2.city_name != 8);
+    std::cout<<cc(green)<< "[ok]" <<std::endl;
+
+    std::cout<<cc(white)<<"append 1: ";
+    node tree3(9);
+    tree.append(&tree3, threesome(6,9,15));
+    assert(tree.search(6)->city_name == 6);
+    std::cout<<cc(green)<< "[ok]" <<std::endl;
+
+    std::cout<<cc(white)<<"append 2: ";
+    assert(tree.search(9)->city_name == 9);
+    std::cout<<cc(green)<< "[ok]" <<std::endl;
+
+    std::cout<<cc(white)<<"append 3: ";
+    node tree4(12);
+    tree.append(&tree4, threesome(9,12,3));
+    assert(tree.search(12)->city_name == 12);
+    std::cout<<cc(green)<< "[ok]" <<std::endl;
+
+
+
+    node tree5(10);
+    node tree6(2);
+
+    tree.append(&tree5, threesome(6,10,19));
+    tree.append(&tree6, threesome(12,2,7));
+    std::cout<<cc(red)<<tree<<" ";
+
+    std::cout<<cc(white)<<"minimal route to: ";
+    assert(road_trips(9,12,10,tree) == -3);
+    std::cout<<cc(green)<< "[ok]" <<std::endl;
+
+    std::vector<node> las;
+    las.push_back(tree);
+    std::cout<<cc(white)<<"find in vector: ";
+    assert(find_in_vec(las,12) == &tree);
+    std::cout<<cc(green)<< "[ok]" <<std::endl;
 }
