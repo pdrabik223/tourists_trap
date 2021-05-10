@@ -1,4 +1,8 @@
 //
+// Created by pc on 10.05.2021.
+//
+
+//
 // Created by pc on 09.05.2021.
 //
 
@@ -60,60 +64,47 @@ struct threesome {
 class node {
 public:
     std::vector<node *> nodes;
-    std::vector<int> weights;
+    /// weight leading to this city
+    /// first one of course has weight 0
+    /// so it's cost of coming into
+    int weight;
     int city_name;
 
 
-    node(int weight) : city_name(weight) {
-        weights = {};
+    node(int name) : city_name(name) {
+        weight =0;
+        nodes = {};
+    };
+
+    node(int weight, int cityName) : weight(weight), city_name(cityName) {
         nodes = {};
     };
 
     node &operator=(const node &other) {
         if (this == &other) return *this;
-        if (city_name == other.city_name)return *this;
 
-
-
-//        for (node *i:other.nodes)
-//            nodes.push_back(new node(*i));
         city_name = other.city_name;
-        weights = other.weights;
+        weight = other.weight;
         nodes = {};
-        if(other.nodes.size() == 0) return *this;
+
 
         for (int i = 0; i < other.nodes.size(); i++) {
-            //if(i>=other.weights.size()) break;
             nodes.push_back(new node(*(other.nodes[i])));
-
-            assert(i <= other.weights.size());
         }
 
-
-        //        for (int i = 0; i < other.nodes.size(); i++) {
-//            node temp_coz_im_tired = *other.nodes[i];
-//            nodes.push_back(&temp_coz_im_tired);
-//        }
-        assert(nodes.size() ==  weights.size());
         return *this;
     }
 
     node(const node &other) {
 
         city_name = other.city_name;
-        weights = other.weights;
+        weight = other.weight;
+        nodes = {};
 
         for (int i = 0; i < other.nodes.size(); i++) {
-            //if(i>=other.weights.size()) break;
             nodes.push_back(new node(*(other.nodes[i])));
-
-            assert(i <= other.weights.size());
         }
-//        for (int i = 0; i < other.nodes.size(); i++) {
-//            node temp_coz_im_tired = *other.nodes[i];
-//            nodes.push_back(&temp_coz_im_tired);
-//        }
-        assert(nodes.size() ==  weights.size());
+
     }
 
     bool operator==(const node &other) const {
@@ -133,8 +124,8 @@ public:
         assert(ptr_to_node->city_name == sth.from);
 
         ptr_to_node->nodes.push_back(new node(*other));
-        ptr_to_node->weights.push_back(sth.weight * -1);
-        assert(ptr_to_node->nodes.size() ==  ptr_to_node->weights.size());
+        ptr_to_node->nodes.back()->weight=sth.weight*-1;
+
     }
 
     int minimal_route_to(int to, int minimal_value = MILLION) {
@@ -147,14 +138,13 @@ public:
 
         for (unsigned int i = 0; i < nodes.size(); i++) {
 
-            if (weights[i] < minimal_value) minimal_value = weights[i];
+            if (nodes[i]->weight < minimal_value) minimal_value = nodes[i]->weight;
 
             temp_int = nodes[i]->minimal_route_to(to, minimal_value);
             if (temp_int != MILLION) return temp_int;
 
         }
 
-    //    assert(false);
         return MILLION;
     }
 
@@ -175,16 +165,13 @@ public:
     ~node() = default;
 
     friend std::ostream &operator<<(std::ostream &out, const node &dt) {
-        out << cc(red) << "name: " << dt.city_name << " children: " << dt.nodes.size() << "\n";
+        out << cc(red) << "name: " << dt.city_name <<" weight: "<<dt.weight<< " children: " << dt.nodes.size() << "\n";
 
         for (auto i:dt.nodes) {
             out << cc(yellow) << i->city_name << "\t";
         }
         out << "\n";
-        for (auto i:dt.weights) {
-            out << cc(green) << i << "\t";
-        }
-        out << "\n";
+
         for (auto i:dt.nodes) {
             out << *i;
         }
@@ -336,7 +323,7 @@ node *find_in_vec(std::vector<node> &data, int city) {
 
 
 int find_position_in_vec(const std::vector<node> &data, int search) {
-  for (int i = 0; i < data.size(); i++) {
+    for (int i = 0; i < data.size(); i++) {
         if (data[i].city_name == search)
             return i;
     }
