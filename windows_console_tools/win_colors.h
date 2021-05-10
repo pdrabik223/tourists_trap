@@ -40,11 +40,36 @@ enum color {
 /// changes the console colors to given in constructor
 class cc{
 public:
+    /// \return changes text color and background color in console
+    /// \param text new text color in windows console
+    /// \param background new background color in windows console
+    /// \possible_colors
+    /// <li>black       gray
+    /// <li>blue        light_blue
+    /// <li>green       light_green
+    /// <li>aqua        light_aqua
+    /// <li>red         light_red
+    /// <li>purple      light_purple
+    /// <li>yellow      light_yellow
+    /// <li>white       bright_white
     cc(color text, color background);
+
+
+    /// \return changes text color and background color in console
+    /// \param text new text color in windows console
+    ///  \possible_colors
+    /// <li>black       gray
+    /// <li>blue        light_blue
+    /// <li>green       light_green
+    /// <li>aqua        light_aqua
+    /// <li>red         light_red
+    /// <li>purple      light_purple
+    /// <li>yellow      light_yellow
+    /// <li>white       bright_white
     cc(color text);
 
     friend std::ostream &operator<<(std::ostream &out,const cc& ref );
-    friend std::wostream &operator<<(std::wostream &out,const cc& ref );
+ //   friend std::wostream &operator<<(std::wostream &out,const cc& ref );
 
 private:
     color text;

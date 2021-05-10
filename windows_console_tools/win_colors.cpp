@@ -20,6 +20,6 @@ std::ostream &operator<<(std::ostream &out, const cc &ref) {
     return out;
 }
 
-std::wostream &operator<<(std::wostream &out, const cc &ref) {
-    return out;
-}
+//std::wostream &operator<<(std::wostream &out, const cc &ref) {
+  //  return out;
+//}
