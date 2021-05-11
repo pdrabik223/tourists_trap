@@ -1,13 +1,3 @@
-//
-// Created by pc on 10.05.2021.
-//
-
-//
-// Created by pc on 09.05.2021.
-//
-
-// ConsoleApplication1.cpp : Ten plik zawiera funkcję „main”. W nim rozpoczyna się i kończy wykonywanie programu.
-//
 
 #include <iostream>
 
@@ -18,11 +8,13 @@
 #define MILLION 1000000
 #define SHOW_VEC(x) for(auto i:x) { std::cout<<i<<" ";} std::cout<<std::endl
 
-#include "windows_console_tools/win_colors.h"
-
+#include "../windows_console_tools/win_colors.h"
+#include "node.h"
+#include "tree.h"
 void test_me_dadD();
 
 class node;
+class tree;
 
 struct threesome {
     int from;
@@ -201,7 +193,6 @@ public:
             /// find ptr to myself in father nodes vector
             int my_position_in_fathers_nodes = find_position_in_vec(nodes.back()->nodes, city_name);
 
-
             assert (my_position_in_fathers_nodes != father->nodes.size());
             /// and delete that element  but not clear memory under
             /// basically make sure that element does not get deleted
@@ -227,9 +218,7 @@ public:
 
     }
 
-    ~node() {
-        delete father;
-    }
+    ~node() = default;
 
     friend std::ostream &operator<<(std::ostream &out, const node &dt) {
         out << cc(red) << "name: " << dt.city_name << " weight: " << dt.weight << " children: " << dt.nodes.size()
@@ -251,6 +240,10 @@ public:
 class tree {
 public:
 
+    tree(int name){
+        root = new node(name);
+
+    }
     /// adds specyfic node to tree
     /// \param other new node
     /// \param info destination of new node, weight walue tah will be assigned
@@ -269,6 +262,9 @@ public:
     int ultimate_father() {
         return root->city_name;
     }
+    node *search(int value) {
+        return root->search(value);
+    }
 
     void make_root(int city_name) {
         node *new_root_ptr = root->search(city_name);
@@ -277,7 +273,19 @@ public:
 
     }
 
+    bool operator==(const tree &rhs) const {
+        return *root == *rhs.root;
+    }
+
+    bool operator!=(const tree &rhs) const {
+        return *root != *rhs.root;
+    }
+
     node *root;
+    ~tree(){
+
+        delete root;
+    }
 };
 
 
@@ -343,7 +351,7 @@ int main() {
         }
     }
 
-
+    SHOW_VEC(forest);
     unsigned i = -1;
 
     while (forest.size() > 1) {
@@ -397,7 +405,6 @@ int main() {
     }
 
     std::cout << cc(red) << "last tree: ";
-    SHOW_VEC(forest);
 
 
     node minimal_spanning_tree = forest[0];
