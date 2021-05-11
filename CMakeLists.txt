@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 add_executable(turists_trap
         main.cpp)
 
-add_executable(for_lizzy  liz_main.cpp
+add_executable(for_lizzy
         windows_console_tools/win_colors.h windows_console_tools/win_colors.cpp )
 
 add_executable(lizzy lizzy/liz_main_v02.cpp
