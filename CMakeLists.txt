@@ -8,8 +8,9 @@ add_executable(turists_trap
 
 add_executable(for_lizzy  liz_main.cpp
         windows_console_tools/win_colors.h windows_console_tools/win_colors.cpp
-        my_vector.h my_vector.cpp
+
         )
 
 add_executable(lizzy  liz_main_v02.cpp
-        windows_console_tools/win_colors.h windows_console_tools/win_colors.cpp )
+        windows_console_tools/win_colors.h windows_console_tools/win_colors.cpp
+       )

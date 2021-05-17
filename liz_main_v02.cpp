@@ -1,10 +1,3 @@
-//
-// Created by pc on 10.05.2021.
-//
-
-//
-// Created by pc on 09.05.2021.
-//
 
 // ConsoleApplication1.cpp : Ten plik zawiera funkcję „main”. W nim rozpoczyna się i kończy wykonywanie programu.
 //
@@ -73,6 +66,7 @@ class node {
 public:
     int city_name;
     std::vector<node *> nodes;
+
     /// weight leading to this city
     /// first one of course has weight 0
     /// so it's cost of coming into
@@ -84,12 +78,11 @@ public:
     node(int name) : city_name(name) {
         father = nullptr;
         weight = 0;
-        nodes = {};
+
     };
 
     node(int weight, int cityName) : weight(weight), city_name(cityName) {
         father = nullptr;
-        nodes = {};
     };
 
     node &operator=(const node &other) {
@@ -100,11 +93,9 @@ public:
 
         city_name = other.city_name;
         weight = other.weight;
-        nodes = {};
 
-
-        for (int i = 0; i < other.nodes.size(); i++) {
-            nodes.push_back(new node(*(other.nodes[i])));
+        for (auto i : other.nodes) {
+            nodes.push_back(new node(*i));
         }
 
         return *this;
@@ -176,7 +167,7 @@ public:
             if (ptr_to_return != nullptr) return ptr_to_return;
         }
 
-        return ptr_to_return;
+        return nullptr;
     }
 
     void make_root() {
@@ -188,8 +179,6 @@ public:
         if (father->father)father->make_root();
 
         { //if we are second to top
-
-
 
             father->weight = weight;
             father->father = this;
@@ -207,13 +196,9 @@ public:
             nodes.back()->nodes[my_position_in_fathers_nodes] = nullptr;
             nodes.back()->nodes.erase(nodes.back()->nodes.begin() + my_position_in_fathers_nodes);
 
-
             weight = 0;
             father = nullptr;
-
-
         }
-
 
         // assert(search(temp_father->city_name)->city_name == temp_father->city_name);
 
@@ -224,12 +209,17 @@ public:
         else return father->ultimate_father();
 
     }
+    node* ultimate_father_ptr() {
+        if (father == nullptr) return this;
+        else return father->ultimate_father_ptr();
 
-    ~node() {
-        delete father;
     }
 
+
+    ~node() {};
+
     friend std::ostream &operator<<(std::ostream &out, const node &dt) {
+        out<<"-------------------------\n";
         out << cc(red) << "name: " << dt.city_name << " weight: " << dt.weight << " children: " << dt.nodes.size()
             << "\n";
 
@@ -239,14 +229,32 @@ public:
         out << "\n";
 
         for (auto i:dt.nodes) {
-            out << *i;
+           i->show(1);
         }
         return out;
+    }
+    void show(int depth=1){
+        for(int i=0;i<depth;i++) std::cout<<"  ";
+        std::cout << "name: " << city_name << " weight: " << weight << " children: " << nodes.size()
+            << "\n";
+
+        for(int i=0;i<depth;i++) std::cout<<"  ";
+        for (auto i:nodes) {
+            std::cout <<  i->city_name << "\t";
+        }
+        std::cout << "\n";
+
+        for (auto i:nodes) {
+             i->show(depth++);
+        }
+        
     }
 
 };
 
 int road_trips(int from, int to, int pssngrs, node &tree);
+
+node* make_root(node* target);
 
 int main() {
 
@@ -322,6 +330,7 @@ int main() {
         /// and by tree i mean witch filed in vector is the origin
         int from_origin_city_name = from_city_ptr->ultimate_father();
 
+
         int from_origin_tree = find_position_in_vec(forest, from_origin_city_name);
 
 
@@ -330,14 +339,13 @@ int main() {
         int to_origin_city_name = to_city_ptr->ultimate_father();
 
 
+
         /// but if the "to" city can be already deleted from forest
         /// therefore already assigned to some bigger tree
         /// in that case to will be forest.size()
-        if (to_origin_city_name == forest.size()) continue;
+         int to_origin_tree = find_position_in_vec(forest, to_origin_city_name);
 
-        int to_origin_tree = find_position_in_vec(forest, to_origin_city_name);
 
-        if (to_origin_tree == forest.size())continue;
         /// check that nodes are placed on different trees
         /// if not, that means they are already connected
         /// so break
@@ -345,11 +353,11 @@ int main() {
 
 
         /// now we need to make sure that "to" is root of a tree
-        // to_city_ptr->make_root();
+        node* root = make_root(to_city_ptr);
 
 
         /// now we merge two trees into one big one
-        from_city_ptr->append_in_place(*to_city_ptr, tab[i].weight * -1);
+        from_city_ptr->append_in_place(*root, tab[i].weight * -1);
 
 
         /// and shrink size of the forest
@@ -427,4 +435,33 @@ int find_position_in_vec(const std::vector<node *> &data, int search) {
             return i;
     }
     return data.size();
+}
+
+
+node* make_root(node* target){
+    if(target->father == nullptr) return target;
+
+    node *ultimate_father = make_root( target->father);
+
+    target->nodes.push_back(new node(*ultimate_father));
+
+    target->nodes.back()->weight = target->weight;
+    target->nodes.back()->father = target;
+
+
+    /// find ptr to myself in father nodes vector
+    int my_position_in_fathers_nodes = find_position_in_vec(target->nodes.back()->nodes, target->city_name);
+
+
+    assert (my_position_in_fathers_nodes != target->father->nodes.size());
+    /// and delete that element  but not clear memory under
+    /// basically make sure that element does not get deleted
+    /// only removed from array
+    target->nodes.back()->nodes[my_position_in_fathers_nodes] = nullptr;
+    target->nodes.back()->nodes.erase(target->nodes.back()->nodes.begin() + my_position_in_fathers_nodes);
+
+    target->father = nullptr;
+    target->weight =0;
+    return target;
+
 }
