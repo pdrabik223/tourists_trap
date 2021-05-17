@@ -20,8 +20,6 @@
 
 #include "windows_console_tools/win_colors.h"
 
-void test_me_dadD();
-
 class node;
 
 struct threesome {
@@ -248,44 +246,9 @@ public:
 
 };
 
-class tree {
-public:
-
-    /// adds specyfic node to tree
-    /// \param other new node
-    /// \param info destination of new node, weight walue tah will be assigned
-    void append(const node &other, threesome info) {
-        if (root == nullptr)return;
-        root->search(info.from)->append_in_place(other, info.weight);
-    }
-
-
-    int minimal_route_to(int to, int minimal_value = MILLION) {
-        return root->minimal_route_to(to, MILLION);
-    }
-
-    ///
-    /// \return city_name_of the ultimate father
-    int ultimate_father() {
-        return root->city_name;
-    }
-
-    void make_root(int city_name) {
-        node *new_root_ptr = root->search(city_name);
-        new_root_ptr->make_root();
-        root = new_root_ptr;
-
-    }
-
-    node *root;
-};
-
-
 int road_trips(int from, int to, int pssngrs, node &tree);
 
-
 int main() {
-    test_me_dadD();
 
     std::vector<threesome> tab;
     {
@@ -465,41 +428,3 @@ int find_position_in_vec(const std::vector<node *> &data, int search) {
     }
     return data.size();
 }
-
-
-void test_me_dadD() {
-
-    node tree(5);
-    tree.append_in_place(6, 12);
-    tree.append_in_place(3, 33);
-    tree.append_in_place(9, 22);
-    assert(tree.search(6)->city_name == 6);
-    assert(tree.search(6)->weight == 12);
-
-    tree.search(6)->append_in_place(33, 12);
-    tree.search(6)->append_in_place(10, 12);
-
-    assert(tree.search(10)->city_name == 10);
-    assert(tree.search(33)->city_name == 33);
-
-    node tree2(4);
-    tree2.append_in_place(7, 12);
-    tree2.append_in_place(4, 33);
-    tree2.append_in_place(11, 22);
-
-    tree.search(3)->append_in_place(tree2, 90);
-
-    assert(tree.search(11)->city_name == 11);
-
-    // std::cout<<tree;
-    node tree3(7);
-    tree3.append_in_place(8, 12);
-    tree3.search(8)->append_in_place(3, 33);
-    tree3.search(3)->append_in_place(9, 33);
-
-    tree3.search(3)->make_root();
-    tree3.search(3)->make_root();
-    assert(tree3.search(3)->father == nullptr);
-
-}
-
