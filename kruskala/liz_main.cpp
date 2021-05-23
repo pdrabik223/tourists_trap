@@ -14,7 +14,7 @@
 #define MILLION 1000000
 #define SHOW_VEC(x) for(auto i:x) { std::cout<<i<<" ";} std::cout<<std::endl
 
-#include "windows_console_tools/win_colors.h"
+#include "../windows_console_tools/win_colors.h"
 
 struct threesome {
     int from;

@@ -11,7 +11,7 @@
 #define MILLION 1000000
 #define SHOW_VEC(x) for(auto i:x) { std::cout<<i<<" ";} std::cout<<std::endl
 
-#include "windows_console_tools/win_colors.h"
+#include "../windows_console_tools/win_colors.h"
 
 class node;
 
@@ -81,7 +81,7 @@ public:
 
     };
 
-    node(int weight, int cityName) : weight(weight), city_name(cityName) {
+    node(int cityName, int weight) : weight(weight), city_name(cityName) {
         father = nullptr;
     };
 
@@ -94,27 +94,16 @@ public:
         city_name = other.city_name;
         weight = other.weight;
 
-        for (auto i : other.nodes) {
-            nodes.push_back(new node(*i));
-        }
+        nodes = other.nodes;
+
+//        for (auto i : other.nodes) {
+//            nodes.push_back(new node(*i));
+//        }
 
         return *this;
     }
 
-    node(const node &other) {
 
-        if (other.father != nullptr) father = other.father;
-        else father = nullptr;
-        city_name = other.city_name;
-        weight = other.weight;
-        nodes = {};
-        if (other.nodes.size() == 0) return;
-
-        for (auto i : other.nodes) {
-            nodes.push_back(new node(*i));
-        }
-
-    }
 
     bool operator==(const node &other) const {
         return city_name == other.city_name;
@@ -169,57 +158,23 @@ public:
 
         return nullptr;
     }
-
-    void make_root() {
-        /// for assert purposes
-        auto temp_father = father;
-
-        if (father == nullptr) return;
-        /// make sure our father is root
-        if (father->father)father->make_root();
-
-        { //if we are second to top
-
-            father->weight = weight;
-            father->father = this;
-
-            nodes.push_back(new node(*father));
-
-            /// find ptr to myself in father nodes vector
-            int my_position_in_fathers_nodes = find_position_in_vec(nodes.back()->nodes, city_name);
-
-
-            assert (my_position_in_fathers_nodes != father->nodes.size());
-            /// and delete that element  but not clear memory under
-            /// basically make sure that element does not get deleted
-            /// only removed from array
-            nodes.back()->nodes[my_position_in_fathers_nodes] = nullptr;
-            nodes.back()->nodes.erase(nodes.back()->nodes.begin() + my_position_in_fathers_nodes);
-
-            weight = 0;
-            father = nullptr;
-        }
-
-        // assert(search(temp_father->city_name)->city_name == temp_father->city_name);
-
-    }
-
     int ultimate_father() {
         if (father == nullptr) return city_name;
         else return father->ultimate_father();
 
     }
-    node* ultimate_father_ptr() {
+    node *ultimate_father_ptr() {
+
         if (father == nullptr) return this;
         else return father->ultimate_father_ptr();
 
     }
-
-
-    ~node() {};
+    ~node() {
+       nodes.clear();
+    };
 
     friend std::ostream &operator<<(std::ostream &out, const node &dt) {
-        out<<"-------------------------\n";
+        out << "-------------------------\n";
         out << cc(red) << "name: " << dt.city_name << " weight: " << dt.weight << " children: " << dt.nodes.size()
             << "\n";
 
@@ -229,32 +184,34 @@ public:
         out << "\n";
 
         for (auto i:dt.nodes) {
-           i->show(1);
+            i->show(1);
         }
         return out;
     }
-    void show(int depth=1){
-        for(int i=0;i<depth;i++) std::cout<<"  ";
-        std::cout << "name: " << city_name << " weight: " << weight << " children: " << nodes.size()
-            << "\n";
 
-        for(int i=0;i<depth;i++) std::cout<<"  ";
+    void show(int depth = 1) {
+        for (int i = 0; i < depth; i++) std::cout << "  ";
+        std::cout << "name: " << city_name << " weight: " << weight << " father: " << father->city_name << " children: "
+                  << nodes.size()
+                  << "\n";
+
+        for (int i = 0; i < depth; i++) std::cout << "  ";
         for (auto i:nodes) {
-            std::cout <<  i->city_name << "\t";
+            std::cout << i->city_name << "\t";
         }
         std::cout << "\n";
 
         for (auto i:nodes) {
-             i->show(depth++);
+            i->show(depth++);
         }
-        
+
     }
 
 };
 
 int road_trips(int from, int to, int pssngrs, node &tree);
 
-node* make_root(node* target);
+node *make_root(node *target);
 
 int main() {
 
@@ -343,7 +300,7 @@ int main() {
         /// but if the "to" city can be already deleted from forest
         /// therefore already assigned to some bigger tree
         /// in that case to will be forest.size()
-         int to_origin_tree = find_position_in_vec(forest, to_origin_city_name);
+        int to_origin_tree = find_position_in_vec(forest, to_origin_city_name);
 
 
         /// check that nodes are placed on different trees
@@ -353,7 +310,7 @@ int main() {
 
 
         /// now we need to make sure that "to" is root of a tree
-        node* root = make_root(to_city_ptr);
+        node *root = make_root(to_city_ptr);
 
 
         /// now we merge two trees into one big one
@@ -364,7 +321,7 @@ int main() {
         forest.erase(forest.begin() + to_origin_tree);
         ///kk new connection
 
-
+        SHOW_VEC(forest);
     }
 
     std::cout << cc(red) << "last tree: ";
@@ -438,12 +395,13 @@ int find_position_in_vec(const std::vector<node *> &data, int search) {
 }
 
 
-node* make_root(node* target){
-    if(target->father == nullptr) return target;
+node *make_root(node *target) {
+    if (target->father == nullptr) return target;
 
-    node *ultimate_father = make_root( target->father);
+    node *ultimate_father = make_root(target->father);
 
     target->nodes.push_back(new node(*ultimate_father));
+
 
     target->nodes.back()->weight = target->weight;
     target->nodes.back()->father = target;
@@ -452,8 +410,8 @@ node* make_root(node* target){
     /// find ptr to myself in father nodes vector
     int my_position_in_fathers_nodes = find_position_in_vec(target->nodes.back()->nodes, target->city_name);
 
-
-    assert (my_position_in_fathers_nodes != target->father->nodes.size());
+    assert(target->nodes.back()->nodes.size() == 0);
+    assert (my_position_in_fathers_nodes != target->nodes.back()->nodes.size());
     /// and delete that element  but not clear memory under
     /// basically make sure that element does not get deleted
     /// only removed from array
@@ -461,7 +419,7 @@ node* make_root(node* target){
     target->nodes.back()->nodes.erase(target->nodes.back()->nodes.begin() + my_position_in_fathers_nodes);
 
     target->father = nullptr;
-    target->weight =0;
+    target->weight = 0;
     return target;
 
 }

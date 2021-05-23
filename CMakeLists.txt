@@ -4,13 +4,15 @@ project(turists_trap)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(turists_trap
-        main.cpp)
+        kruskala/main.cpp)
 
-add_executable(for_lizzy  liz_main.cpp
+add_executable(for_lizzy kruskala/liz_main.cpp
         windows_console_tools/win_colors.h windows_console_tools/win_colors.cpp
 
         )
 
-add_executable(lizzy  liz_main_v02.cpp
+add_executable(lizzy kruskala/liz_main_v02.cpp
         windows_console_tools/win_colors.h windows_console_tools/win_colors.cpp
        )
+
+add_executable(prim prima/main.cpp)
