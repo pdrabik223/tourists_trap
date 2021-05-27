@@ -7,11 +7,12 @@
 #include <algorithm>
 #include <stdio.h>
 #include <string.h>
+#include <cassert>
 
 
 #define SHOW_VEC(x) for(auto i:x) std::cout<<i
 #define SHOW_TRANSLATION(x) for(auto i:x)std::cout<<
-#define SHOW_USED(x) for(int i=0;i<x.size();i++){if(x[i])std::cout<<i<<" ";}
+#define SHOW_USED(x) std::cout<<x<<std::endl;
 
 struct threesome {
     threesome(int from, int to, int weight) : from(from), to(to), weight(weight) {}
@@ -79,7 +80,7 @@ struct node {
         children = {};
     }
 
-    node(int name, int weight) : weight(weight), name(name) {
+    node(int name, int weight) : name(name), weight(weight) {
         children = {};
     }
 
@@ -113,17 +114,7 @@ struct node {
     }
 
     friend std::ostream &operator<<(std::ostream &out, node &rhs) {
-        out << "name: " << rhs.name;
-        out << " weight: " << rhs.weight;
-        out << " children :\n";
-        for (auto &i : rhs.children) {
-            out << i->name << " ";
-        }
-        std::cout << "\n";
-        for (auto &i : rhs.children) {
-            i->show(1);
-        }
-        out << "\n";
+        rhs.show();
         return out;
     }
 
@@ -131,7 +122,7 @@ struct node {
         for (int i = 0; i < depth; i++)std::cout << "  ";
         std::cout << "name: " << name;
         std::cout << " weight: " << weight;
-        std::cout << " children :\n";
+        std::cout << " children: " << children.size() << "\n";
         for (int i = 0; i < depth; i++)std::cout << "  ";
 
         for (auto &i : children) {
@@ -144,29 +135,54 @@ struct node {
 
         std::cout << "\n";
     }
+
 };
 
-
-class h_table {
+/// bool hash table<br>
+/// i.e. hash table that is filled with booleans<br>
+/// fast and fail proof way to store big amounts of booleans<br>
+/// hash table concept assures fast addressing time<br>
+class bh_table {
 public:
-    h_table(size_t size) : size_(size ) {
-        storage = new bool[size_ ];
-        memset(storage, 0, size_);
-
+    bh_table(size_t size) {
+        allocated_size = size;
+        size_ = 0;
+        storage = new bool[allocated_size];
+        for (int i = 0; i < allocated_size; i++) {
+            storage[i] = false;
+        }
     };
 
-    void append(size_t value) { storage[value] = true; }
-
-    bool operator[](size_t index) const { return storage[index]; }
-
-    ~h_table() {
-
-        delete[]storage;
+    void append(size_t value) {
+        assert(value > 0); /// if for whatever reason we have node name 0
+        --value; /// that's because in our example node names start at one;
+        assert(value < allocated_size);
+        if (storage[value]) return;
+        storage[value] = true;
+        ++size_;
     }
 
-    int size() const { return size_; }
+    bool &operator[](size_t index) {
+        assert(index > 0); /// if for whatever reason we have node name 0
+        --index; /// that's because in our example node names start at one;
+        assert(index < allocated_size);
+        return storage[index];
+    }
+
+    ~bh_table() { delete[] storage; }
+
+    size_t size() const { return size_; }
+
+    bool filled() { return size_ == allocated_size; }
+
+    friend std::ostream &operator<<(std::ostream &out, bh_table &rhs) {
+        for (int i = 0; i < rhs.size(); i++) { if (rhs[i + 1])std::cout << i + 1 << " "; }
+        return out;
+    }
+
 
 protected:
+    size_t allocated_size;
     size_t size_;
     bool *storage;
 
@@ -175,27 +191,33 @@ protected:
 int main() {
     int number_of_nodes;
     std::cin >> number_of_nodes;
-    int int_temp;
-    std::string string_temp;
     dicvec node_dictionary = {};
+    {
+        std::string string_temp;
+        int int_temp;
+        for (int i = 0; i < number_of_nodes; i++) {
+            std::cin >> int_temp;
+            std::cin >> string_temp;
+            /// because (i guess) town names fall in range <1;32767>
+            /// i can subtract one from every name so i get range <0;32766>
+            /// it will be easier that way
+            node_dictionary.push_back({int_temp, string_temp});
 
-    for (int i = 0; i < number_of_nodes; i++) {
-        std::cin >> int_temp;
-        std::cin >> string_temp;
-        node_dictionary.push_back({int_temp, string_temp});
+        }
     }
-
     int number_of_connections;
     std::cin >> number_of_connections;
     threevec node_connections;
-    int temp_from, temp_to, temp_weight;
-    for (int i = 0; i < number_of_connections; i++) {
-        std::cin >> temp_from;
-        std::cin >> temp_to;
-        std::cin >> temp_weight;
-        node_connections.push_back({temp_from, temp_to, temp_weight});
-    }
+    {
+        int temp_from, temp_to, temp_weight;
+        for (int i = 0; i < number_of_connections; i++) {
 
+            std::cin >> temp_from;
+            std::cin >> temp_to;
+            std::cin >> temp_weight;
+            node_connections.push_back({temp_from, temp_to, temp_weight});
+        }
+    }
     /// end of data input
     /// first sort the received connections
     std::sort(node_connections.begin(), node_connections.end());
@@ -205,27 +227,24 @@ int main() {
     node root;
     root.set(node_connections.front());
 
-
-
     /// next we need another vector that will hold the names of nodes already existing on three
     /// this is attempt to cut down time off accessing the list of elements on three
-    h_table used_names(5);
+    bh_table used_names(number_of_nodes);
 
     used_names.append(node_connections.front().from);
-
     used_names.append(node_connections.front().to);
 
-    SHOW_USED(used_names);
-    std::cout << " <first!";
+    assert(used_names[node_connections.front().from]);
+    assert(used_names[node_connections.front().to]);
+
     /// next we delete first connection form connections vector
     node_connections.erase(node_connections.begin());
 
 
-
     /// as long as all the cities aren't on the tree
     /// id est as long as all cities aren't connected
-    while (used_names.size() != number_of_nodes) {
 
+    while (!used_names.filled()) {
 
         ///pick the next best connection, but it must already be some way connected ou our tree!
         /// and because our connections are two way connections we don't really have "from, to" relationship
@@ -235,29 +254,22 @@ int main() {
                 !used_names[node_connections[i].to]) {
 
                 root.append(node_connections[i]);
-                used_names.append(node_connections[i].from);
+                used_names.append(node_connections[i].to);
                 node_connections.erase(node_connections.begin() + i);
-                SHOW_USED(used_names);
+
                 break;
-            } else if (used_names[node_connections[i].to] &&
-                       !used_names[node_connections[i].from]) {
+            } else if (!used_names[node_connections[i].from] &&
+                       used_names[node_connections[i].to]) {
 
                 std::swap(node_connections[i].to, node_connections[i].from);
-                std::cout << "swapped";
-                SHOW_USED(used_names);
+
                 root.append(node_connections[i]);
-                used_names.append(node_connections[i].from);
+                used_names.append(node_connections[i].to);
                 node_connections.erase(node_connections.begin() + i);
-
-
                 break;
             }
         }
     }
-    std::cout << "after teh thing\n";
-
-    SHOW_USED(used_names);
-    std::cout << "\nafter teh thing\n";
 
     std::cout << root;
 
