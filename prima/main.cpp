@@ -6,13 +6,12 @@
 #include <vector>
 #include <algorithm>
 #include <stdio.h>
-#include <string.h>
+
 #include <cassert>
 
 
 #define SHOW_VEC(x) for(auto i:x) std::cout<<i
-#define SHOW_TRANSLATION(x) for(auto i:x)std::cout<<
-#define SHOW_USED(x) std::cout<<x<<std::endl;
+
 
 struct threesome {
     threesome(int from, int to, int weight) : from(from), to(to), weight(weight) {}
@@ -180,12 +179,10 @@ public:
         return out;
     }
 
-
 protected:
     size_t allocated_size;
     size_t size_;
     bool *storage;
-
 };
 
 int main() {
@@ -216,6 +213,7 @@ int main() {
             std::cin >> temp_to;
             std::cin >> temp_weight;
             node_connections.push_back({temp_from, temp_to, temp_weight});
+
         }
     }
     /// end of data input
