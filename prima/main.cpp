@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <stdio.h>
-
+#include <map>
 #include <cassert>
 
 
@@ -51,18 +51,22 @@ struct threesome {
         return out;
     }
 
+
 };
 
 using threevec = std::vector<threesome>;
-using dicvec = std::vector<std::pair<int, std::string>>;
+
 
 struct node {
 
     /// value of a road leading to me
     /// now if node is root road leading to me doesn't exist therefore weight = 0
+
     int weight;
+
     /// my name
     int name;
+
     /// ptrs to my children
     std::vector<node *> children;
 
@@ -112,14 +116,22 @@ struct node {
         return nullptr;
     }
 
-    friend std::ostream &operator<<(std::ostream &out, node &rhs) {
-        rhs.show();
-        return out;
+    void show_proper(std::map<int ,std::string>& node_dictionary) {
+
+        for (auto &i : children) {
+            std::cout << node_dictionary[name]<<" ";
+            std::cout << node_dictionary[i->name]<<" " ;
+            std::cout << i->weight<<"\n" ;
+
+        }
+        for (auto &i : children) {
+            i->show_proper(node_dictionary);
+        }
     }
 
-    void show(int depth = 0) {
+    void show(std::map<int ,std::string>& node_dictionary, int depth = 0 ) {
         for (int i = 0; i < depth; i++)std::cout << "  ";
-        std::cout << "name: " << name;
+        std::cout << "name: " << name<<"str name" <<node_dictionary[name] ;
         std::cout << " weight: " << weight;
         std::cout << " children: " << children.size() << "\n";
         for (int i = 0; i < depth; i++)std::cout << "  ";
@@ -129,7 +141,7 @@ struct node {
         }
         std::cout << "\n";
         for (auto &i : children) {
-            i->show(depth + 1);
+            i->show(node_dictionary,depth + 1);
         }
 
         std::cout << "\n";
@@ -162,7 +174,7 @@ public:
     }
 
     bool &operator[](size_t index) {
-        assert(index > 0); /// if for whatever reason we have node name 0
+        assert(index >= 0); /// if for whatever reason we have node name 0
         --index; /// that's because in our example node names start at one;
         assert(index < allocated_size);
         return storage[index];
@@ -188,7 +200,7 @@ protected:
 int main() {
     int number_of_nodes;
     std::cin >> number_of_nodes;
-    dicvec node_dictionary = {};
+    std::map<int, std::string> node_dictionary = {};
     {
         std::string string_temp;
         int int_temp;
@@ -198,7 +210,7 @@ int main() {
             /// because (i guess) town names fall in range <1;32767>
             /// i can subtract one from every name so i get range <0;32766>
             /// it will be easier that way
-            node_dictionary.push_back({int_temp, string_temp});
+            node_dictionary.insert({int_temp, string_temp});
 
         }
     }
@@ -269,7 +281,7 @@ int main() {
         }
     }
 
-    std::cout << root;
+    root.show_proper(node_dictionary);
 
     return 0;
 }
