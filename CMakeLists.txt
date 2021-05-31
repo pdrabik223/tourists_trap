@@ -16,3 +16,4 @@ add_executable(lizzy kruskala/liz_main_v02.cpp
        )
 
 add_executable(prim prima/main.cpp)
+add_executable(gen prima/gen_data.cpp)
