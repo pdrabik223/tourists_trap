@@ -9,10 +9,6 @@
 #include <map>
 #include <cassert>
 
-
-#define SHOW_VEC(x) for(auto i:x) std::cout<<i
-
-
 struct threesome {
     threesome(int from, int to, int weight) : from(from), to(to), weight(weight) {}
 
@@ -43,14 +39,6 @@ struct threesome {
     int from;
     int to;
     int weight;
-
-    friend std::ostream &operator<<(std::ostream &out, threesome &rhs) {
-        out << "from: " << rhs.from;
-        out << " to: " << rhs.to;
-        out << " weight: " << rhs.weight << std::endl;
-        return out;
-    }
-
 
 };
 
@@ -116,36 +104,20 @@ struct node {
         return nullptr;
     }
 
-    void show_proper(std::map<int ,std::string>& node_dictionary) {
+    void show(std::map<int ,std::string>& node_dictionary) {
 
         for (auto &i : children) {
             std::cout << node_dictionary[name]<<" ";
-            std::cout << node_dictionary[i->name]<<" " ;
+            std::cout <<node_dictionary[i->name]<<" " ;
             std::cout << i->weight<<"\n" ;
 
         }
         for (auto &i : children) {
-            i->show_proper(node_dictionary);
+            i->show(node_dictionary);
         }
     }
 
-    void show(std::map<int ,std::string>& node_dictionary, int depth = 0 ) {
-        for (int i = 0; i < depth; i++)std::cout << "  ";
-        std::cout << "name: " << name<<"str name" <<node_dictionary[name] ;
-        std::cout << " weight: " << weight;
-        std::cout << " children: " << children.size() << "\n";
-        for (int i = 0; i < depth; i++)std::cout << "  ";
 
-        for (auto &i : children) {
-            std::cout << i->name << " ";
-        }
-        std::cout << "\n";
-        for (auto &i : children) {
-            i->show(node_dictionary,depth + 1);
-        }
-
-        std::cout << "\n";
-    }
 
 };
 
@@ -184,12 +156,7 @@ public:
 
     size_t size() const { return size_; }
 
-    bool filled() { return size_ == allocated_size; }
-
-    friend std::ostream &operator<<(std::ostream &out, bh_table &rhs) {
-        for (int i = 0; i < rhs.size(); i++) { if (rhs[i + 1])std::cout << i + 1 << " "; }
-        return out;
-    }
+    bool filled() const { return size_ == allocated_size; }
 
 protected:
     size_t allocated_size;
@@ -231,7 +198,6 @@ int main() {
     /// end of data input
     /// first sort the received connections
     std::sort(node_connections.begin(), node_connections.end());
-    SHOW_VEC(node_connections);
 
     /// next we declare the tree root, based on best connections in the graph
     node root;
@@ -281,7 +247,7 @@ int main() {
         }
     }
 
-    root.show_proper(node_dictionary);
+    root.show(node_dictionary);
 
     return 0;
 }

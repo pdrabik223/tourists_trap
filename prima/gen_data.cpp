@@ -5,10 +5,11 @@
 #include <array>
 #include <vector>
 #include <fstream>
+#include <string>
 
-#define number_of_nodes  10
-#define MAX_NUMBER_OF_CONNECTIONS  20
-#define  MAX_CONNECTION_WEIGHT  100
+#define number_of_nodes  32767
+#define MAX_NUMBER_OF_CONNECTIONS 32767 * 2
+#define  MAX_CONNECTION_WEIGHT  1000
 #define  PATH "../output_data.txt"
 
 struct threesome {
@@ -69,6 +70,7 @@ int main() {
             i--;
             continue;
         }
+        printf("\r i: %d",i);
     }
     std::ofstream outfile;
 
@@ -79,7 +81,7 @@ int main() {
 
 
     for (int i = 0; i < number_of_nodes; i++)
-        outfile << i + 1 << " " << gen_str(i) << "\n";
+        outfile << i + 1 << " " << std::to_string(i) << "\n";
 
 
     outfile << output.size() << "\n";
@@ -104,7 +106,6 @@ int pow26(int exponent) {
 std::string gen_str(int seed) {
     std::string output;
     for (int i = 0; i < number_of_nodes / 26 + 1; i++) {
-        output.push_back((65 + (seed / (i + 1) % 26)));
 
     }
     return output;
