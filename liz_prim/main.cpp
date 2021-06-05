@@ -89,6 +89,7 @@ struct node {
     bool operator!=(int other_name) const {
         return name == other_name;
     }
+
 /// \brief the route mus be viable a.k.a. there must be connection from "this" city to destination city
 /// \param to city name wa are heading to a.k.a. destination
 /// \param minimal_value for recursion purposes should not be defined as a "high value" be default it's Million
@@ -152,11 +153,11 @@ struct node {
 
     friend std::ostream &operator<<(std::ostream &out, const node &dt) {
         out << "-------------------------\n";
-        out <<  "name: " << dt.name << " weight: " << dt.weight << " children: " << dt.children.size()
+        out << "name: " << dt.name << " weight: " << dt.weight << " children: " << dt.children.size()
             << "\n";
 
         for (auto i:dt.children) {
-            out <<  i->name << "\t";
+            out << i->name << "\t";
         }
         out << "\n";
 
@@ -168,7 +169,7 @@ struct node {
 
     void show(int depth = 1) {
         for (int i = 0; i < depth; i++) std::cout << "  ";
-        std::cout <<  "name: " << name << " weight: " <<weight << " children: " << children.size()<< "\n";
+        std::cout << "name: " << name << " weight: " << weight << " children: " << children.size() << "\n";
 
         for (int i = 0; i < depth; i++) std::cout << "  ";
         for (auto i:children) {
@@ -239,10 +240,9 @@ int road_trips(int from, int to, node &tree) {
 }
 
 
-
 int main() {
     std::vector<threesome> node_connections;
-        int number_of_cities;
+    int number_of_cities;
     {
         int number_of_roads;
 
@@ -276,6 +276,9 @@ int main() {
     /// end of data input
     /// first sort the received connections
     std::sort(node_connections.begin(), node_connections.end());
+
+    for (auto &i : node_connections)
+        i.weight *= -1;
 
     /// next we declare the tree root, based on best connections in the graph
     node root;
@@ -325,9 +328,7 @@ int main() {
         }
     }
 
-    std::cout<<root;
-
-
+    std::cout << root;
 
 
     int from_user;
@@ -346,11 +347,10 @@ int main() {
         int dzielna = how_many_people / road_trips(from_user, to_user, root);
         int leftovers = how_many_people % road_trips(from_user, to_user, root);
 
-        std::cout << "solution: " << dzielna <<" \\ " <<leftovers  <<std::endl;
+        std::cout << dzielna << " \\ " << leftovers << std::endl;
         if (leftovers != 0) dzielna++;
-
+        std::cout << "solution: " << dzielna << std::endl;
     } while (2 > 1);
-
 
 
     return 0;
