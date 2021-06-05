@@ -15,5 +15,6 @@ add_executable(lizzy kruskala/liz_main_v02.cpp
         windows_console_tools/win_colors.h windows_console_tools/win_colors.cpp
        )
 
-add_executable(prim prima/main.cpp)
+add_executable(prim prima/ASD2gr2_Drabik_Piotr_MST.cpp)
+add_executable(liz_prim liz_prim/main.cpp)
 add_executable(gen prima/gen_data.cpp)
