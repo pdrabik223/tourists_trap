@@ -158,14 +158,14 @@ public:
         return MILLION;
     }
 
-    node *search(int value) {
+    node *search(int destination) {
 
-        if (city_name == value) return this;
+        if (city_name == destination) return this;
         if (nodes.empty()) return nullptr;
 
         node *ptr_to_return = nullptr;
         for (auto i : nodes) {
-            ptr_to_return = i->search(value);
+            ptr_to_return = i->search(destination);
             if (ptr_to_return != nullptr) return ptr_to_return;
         }
 

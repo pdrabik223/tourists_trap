@@ -54,6 +54,15 @@ using threevec = std::vector<threesome>;
 
 struct node {
 
+
+    struct city_or_road{
+        city_or_road(node* city):city(city),weight(0){};
+        city_or_road(int weight):city(nullptr),weight(weight){};
+
+        node* city;
+        int weight;
+    };
+
     /// value of a road leading to me
     /// now if node is root road leading to me doesn't exist therefore weight = 0
 
@@ -115,20 +124,42 @@ struct node {
 
     }
 
-    node *search(int value) {
 
-        if (name == value) return this;
+    city_or_road minimal_route_but_harder_requ(threesome route, int minimal_value = MILLION, int depth = 0) {
+
+        if (name == route.from) return this;
+
+        node *ptr_to_return = nullptr;
+
+        for (auto i : children) {
+            ptr_to_return = i->minimal_route_but_harder_requ(route).city;
+            if (ptr_to_return != nullptr) break;
+        }
+        if(!search(route.to)) return ptr_to_return;
+
+        return minimal_route(route.to);
+
+
+    }
+//
+
+
+    node *search(int destination) {
+
+        if (name == destination) return this;
         if (children.empty()) return nullptr;
 
         node *ptr_to_return = nullptr;
 
         for (auto i : children) {
-            ptr_to_return = i->search(value);
+            ptr_to_return = i->search(destination);
             if (ptr_to_return != nullptr) return ptr_to_return;
         }
 
         return nullptr;
     }
+
+
 
     void append(threesome connection) {
         find(connection.from)->
@@ -235,7 +266,9 @@ int road_trips(int from, int to, node &tree) {
     if (tree.search(from)->search(to) != nullptr) {
         return tree.search(from)->minimal_route(to);
 
-    } else return tree.search(to)->minimal_route(from);
+    } else
+        return tree.minimal_route_but_harder_requ({from,to,666}).weight;
+
     assert(false);
 }
 
