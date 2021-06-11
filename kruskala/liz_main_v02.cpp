@@ -144,15 +144,15 @@ public:
         return MILLION;
     }
 
-    node *search(int value) {
+    node *search(int destination) {
 
-        if (city_name == value) return this;
+        if (city_name == destination) return this;
         if (nodes.empty()) return nullptr;
 
         node *ptr_to_return = nullptr;
 
         for (auto i : nodes) {
-            ptr_to_return = i->search(value);
+            ptr_to_return = i->search(destination);
             if (ptr_to_return != nullptr) return ptr_to_return;
         }
 
@@ -239,14 +239,6 @@ int main() {
     ///SHOW_VEC(tab);
 
 
-    for (auto &i : tab) {
-        i.weight--; //bo kierowca zajmuje niepotrzebne miesce podobno
-        // i don't see it but okey
-        i.weight = -i.weight; // bo trzeba zrobić maksymalne drzewo rozpinające ale mamy algorytm tylko na minimalne,
-        // wiec jak bedziemy pracowac
-        // na liczbach pzeciwnych to zadziala
-        //dzieki temu zastosujemy algorytm najmniejszego drzewa rozpinajacego od Kruskala
-    }
 
     std::sort(tab.begin(), tab.end());
 

@@ -7,8 +7,8 @@
 #include <fstream>
 #include <string>
 
-#define number_of_nodes  32767
-#define MAX_NUMBER_OF_CONNECTIONS 32767 * 2
+#define number_of_nodes  1000
+#define MAX_NUMBER_OF_CONNECTIONS 1000 * 2
 #define  MAX_CONNECTION_WEIGHT  1000
 #define  PATH "../output_data.txt"
 
