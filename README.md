@@ -1,6 +1,6 @@
 # tourists_trap
 
-the third of challenges given to us by gwizdałła
+#3 
 
 ## first thing
 
