@@ -65,7 +65,7 @@ int main() {
         int weight = rand() % MAX_CONNECTION_WEIGHT;
 
         /// if the entry is unique
-        /// append it to the connection list
+        /// Append it to the connection list
         if (append_to_vec(output, {from, to, weight})) {
             i--;
             continue;
@@ -113,7 +113,7 @@ std::string gen_str(int seed) {
 }
 
 bool append_to_vec(std::vector<threesome> &storage, threesome target) {
-    ///append to vector if the entry is unique
+    ///Append to vector if the entry is unique
     for (auto &i:storage)
         if (i == target) return true;
 

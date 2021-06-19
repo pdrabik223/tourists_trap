@@ -37,9 +37,9 @@ struct triplet {
 
 };
 
-class node {
+class Node {
 public:
-    node() {
+  Node() {
         value = 0;
         left_ptr = nullptr;
         left_cost = 0;
@@ -47,7 +47,7 @@ public:
         right_cost = 0;
     }
 
-    node(int val, int left_val, int right_val) {
+    Node(int val, int left_val, int right_val) {
         value = val;
         left_ptr = nullptr;
         left_cost = 0;
@@ -57,9 +57,9 @@ public:
 
 private:
     int value;
-    node *left_ptr;
+    Node *left_ptr;
     int left_cost;
-    node *right_ptr;
+    Node *right_ptr;
     int right_cost;
 };
 

@@ -57,19 +57,18 @@ struct threesome {
 
 };
 
-class node {
+class Node {
 public:
-    std::vector<node *> nodes;
+    std::vector<Node *> nodes;
     std::vector<int> weights;
     int city_name;
 
-
-    node(int weight) : city_name(weight) {
+    Node(int weight) : city_name(weight) {
         weights = {};
         nodes = {};
     };
 
-    node &operator=(const node &other) {
+    Node &operator=(const Node &other) {
         if (this == &other) return *this;
         if (city_name == other.city_name)return *this;
 
@@ -83,14 +82,14 @@ public:
         if(other.nodes.size() == 0) return *this;
 
         for (int i = 0; i < other.nodes.size(); i++) {
-            //if(i>=other.weights.size()) break;
-            nodes.push_back(new node(*(other.nodes[i])));
+            //if(i>=other.weights.Size()) break;
+            nodes.push_back(new Node(*(other.nodes[i])));
 
             assert(i <= other.weights.size());
         }
 
 
-        //        for (int i = 0; i < other.nodes.size(); i++) {
+        //        for (int i = 0; i < other.nodes.Size(); i++) {
 //            node temp_coz_im_tired = *other.nodes[i];
 //            nodes.push_back(&temp_coz_im_tired);
 //        }
@@ -98,41 +97,41 @@ public:
         return *this;
     }
 
-    node(const node &other) {
+    Node(const Node &other) {
 
         city_name = other.city_name;
         weights = other.weights;
 
         for (int i = 0; i < other.nodes.size(); i++) {
-            //if(i>=other.weights.size()) break;
-            nodes.push_back(new node(*(other.nodes[i])));
+            //if(i>=other.weights.Size()) break;
+            nodes.push_back(new Node(*(other.nodes[i])));
 
             assert(i <= other.weights.size());
         }
-//        for (int i = 0; i < other.nodes.size(); i++) {
+//        for (int i = 0; i < other.nodes.Size(); i++) {
 //            node temp_coz_im_tired = *other.nodes[i];
 //            nodes.push_back(&temp_coz_im_tired);
 //        }
         assert(nodes.size() ==  weights.size());
     }
 
-    bool operator==(const node &other) const {
+    bool operator==(const Node &other) const {
         return city_name == other.city_name;
     }
 
-    bool operator!=(const node &other) const {
+    bool operator!=(const Node &other) const {
         return city_name != other.city_name;
     }
 
 
-    void append(const node *other, threesome sth) {
+    void append(const Node *other, threesome sth) {
         assert(other);
-        node *ptr_to_node = search(sth.from);
+        Node *ptr_to_node = Search(sth.from);
 
         assert(other->city_name == sth.to);
         assert(ptr_to_node->city_name == sth.from);
 
-        ptr_to_node->nodes.push_back(new node(*other));
+        ptr_to_node->nodes.push_back(new Node(*other));
         ptr_to_node->weights.push_back(sth.weight * -1);
         assert(ptr_to_node->nodes.size() ==  ptr_to_node->weights.size());
     }
@@ -158,23 +157,23 @@ public:
         return MILLION;
     }
 
-    node *search(int destination) {
+    Node *Search(int destination) {
 
         if (city_name == destination) return this;
         if (nodes.empty()) return nullptr;
 
-        node *ptr_to_return = nullptr;
+        Node *ptr_to_return = nullptr;
         for (auto i : nodes) {
-            ptr_to_return = i->search(destination);
+            ptr_to_return = i->Search(destination);
             if (ptr_to_return != nullptr) return ptr_to_return;
         }
 
         return ptr_to_return;
     }
 
-    ~node() = default;
+    ~Node() = default;
 
-    friend std::ostream &operator<<(std::ostream &out, const node &dt) {
+    friend std::ostream &operator<<(std::ostream &out, const Node &dt) {
         out << cc(red) << "name: " << dt.city_name << " children: " << dt.nodes.size() << "\n";
 
         for (auto i:dt.nodes) {
@@ -194,11 +193,11 @@ public:
 };
 
 
-int road_trips(int from, int to, int pssngrs, node &tree);
+int road_trips(int from, int to, int pssngrs, Node &tree);
 
-node *find_in_vec(std::vector<node> &data, int city);
+Node *find_in_vec(std::vector<Node> &data, int city);
 
-int find_position_in_vec(const std::vector<node> &data, int search);
+int find_position_in_vec(const std::vector<Node> &data, int search);
 
 int main() {
     int number_of_cities;
@@ -235,7 +234,7 @@ int main() {
 
     SHOW_VEC(tab);
 
-    std::vector<node> forest;
+    std::vector<Node> forest;
 
     for (auto i : tab) {
         if (std::find(forest.begin(), forest.end(), i.from) == forest.end()) {
@@ -244,13 +243,13 @@ int main() {
             // a nie znamy ich nazwa,
             // wiec szukam czy mam juz taki wierzcholek w lesie
             // i jak nie to dodajemy do lasu
-            forest.push_back(node(i.from));
+            forest.push_back(Node(i.from));
         }
 
         if (std::find(forest.begin(), forest.end(), i.to) == forest.end()) {
             //to samo co wyzej ale moglo byc tak ze jakis wierzcholek byl w to, a nie bylo go w from
 
-            forest.push_back(node(i.to));
+            forest.push_back(Node(i.to));
         }
     }
 
@@ -262,7 +261,7 @@ int main() {
 
     while (forest.size() > 1) {
 
-        node *from_city_ptr = find_in_vec(forest, tab[i].from);
+      Node *from_city_ptr = find_in_vec(forest, tab[i].from);
         assert(from_city_ptr);
 
 //        node *to_city_ptr = find_in_vec(forest, tab[i].to);
@@ -274,7 +273,7 @@ int main() {
 
             //   from_city_ptr->nodes.push_back(new node(forest[position]));
             //   from_city_ptr->weights.push_back(tab[i].weight * -1);
-            from_city_ptr->append(new node(forest[position]), tab[i]);
+            from_city_ptr->append(new Node(forest[position]), tab[i]);
             forest.erase(forest.begin() + position);
 
         }
@@ -284,8 +283,7 @@ int main() {
     std::cout << cc(red) << "last tree: ";
     SHOW_VEC(forest);
 
-
-    node minimal_spanning_tree = forest[0];
+    Node minimal_spanning_tree = forest[0];
     // std::cout << cc(red) << minimal_spanning_tree;
 
     int from_user;
@@ -312,21 +310,20 @@ int main() {
 }
 
 
-int road_trips(int from, int to, int pssngrs, node &tree) {
+int road_trips(int from, int to, int pssngrs, Node &tree) {
 
-    if (tree.search(from)->search(to) != nullptr) {
-        return tree.search(from)->minimal_route_to(to);
+    if (tree.Search(from)->Search(to) != nullptr) {
+        return tree.Search(from)->minimal_route_to(to);
 
-    } else return tree.search(to)->minimal_route_to(from);
+    } else return tree.Search(to)->minimal_route_to(from);
     assert(false);
 }
 
-
-node *find_in_vec(std::vector<node> &data, int city) {
-    node *temp = nullptr;
+Node *find_in_vec(std::vector<Node> &data, int city) {
+  Node *temp = nullptr;
     for (unsigned i = 0; i < data.size(); ++i) {
 
-        temp = data[i].search(city);
+        temp = data[i].Search(city);
         if (temp != nullptr) return temp;
 
     }
@@ -335,7 +332,7 @@ node *find_in_vec(std::vector<node> &data, int city) {
 }
 
 
-int find_position_in_vec(const std::vector<node> &data, int search) {
+int find_position_in_vec(const std::vector<Node> &data, int search) {
   for (int i = 0; i < data.size(); i++) {
         if (data[i].city_name == search)
             return i;
@@ -345,12 +342,12 @@ int find_position_in_vec(const std::vector<node> &data, int search) {
 
 void test_me_daddy() {
     std::cout << cc(white) << "constructor: ";
-    node tree(6);
+    Node tree(6);
     assert(tree.city_name == 6);
     std::cout << cc(green) << "[ok]" << std::endl;
 
     std::cout << cc(white) << "copy constructor: ";
-    node tree2(tree);
+    Node tree2(tree);
     assert(tree2.city_name == 6);
     std::cout << cc(green) << "[ok]" << std::endl;
 
@@ -362,25 +359,24 @@ void test_me_daddy() {
     assert(tree2.city_name != 8);
     std::cout << cc(green) << "[ok]" << std::endl;
 
-    std::cout << cc(white) << "append 1: ";
-    node tree3(9);
+    std::cout << cc(white) << "Append 1: ";
+    Node tree3(9);
     tree.append(&tree3, threesome(6, 9, 15));
-    assert(tree.search(6)->city_name == 6);
+    assert(tree.Search(6)->city_name == 6);
     std::cout << cc(green) << "[ok]" << std::endl;
 
-    std::cout << cc(white) << "append 2: ";
-    assert(tree.search(9)->city_name == 9);
+    std::cout << cc(white) << "Append 2: ";
+    assert(tree.Search(9)->city_name == 9);
     std::cout << cc(green) << "[ok]" << std::endl;
 
-    std::cout << cc(white) << "append 3: ";
-    node tree4(12);
+    std::cout << cc(white) << "Append 3: ";
+    Node tree4(12);
     tree.append(&tree4, threesome(9, 12, 3));
-    assert(tree.search(12)->city_name == 12);
+    assert(tree.Search(12)->city_name == 12);
     std::cout << cc(green) << "[ok]" << std::endl;
 
-
-    node tree5(10);
-    node tree6(2);
+    Node tree5(10);
+    Node tree6(2);
 
     tree.append(&tree5, threesome(6, 10, 19));
     tree.append(&tree6, threesome(12, 2, 7));
@@ -390,9 +386,9 @@ void test_me_daddy() {
     assert(road_trips(9, 12, 10, tree) == -3);
     std::cout << cc(green) << "[ok]" << std::endl;
 
-    std::vector<node> las;
+    std::vector<Node> las;
     las.push_back(tree);
-    std::cout << cc(white) << "find in vector: ";
+    std::cout << cc(white) << "Find in vector: ";
     assert(find_in_vec(las, 12) == &tree);
     std::cout << cc(green) << "[ok]" << std::endl;
 }

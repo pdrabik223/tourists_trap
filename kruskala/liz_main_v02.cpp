@@ -13,7 +13,7 @@
 
 #include "../windows_console_tools/win_colors.h"
 
-class node;
+class Node;
 
 struct threesome {
     int from;
@@ -56,43 +56,43 @@ struct threesome {
 
 };
 
-node *find_in_vec(std::vector<node> &data, int city);
+Node *find_in_vec(std::vector<Node> &data, int city);
 
-int find_position_in_vec(const std::vector<node> &data, int search);
+int find_position_in_vec(const std::vector<Node> &data, int search);
 
-int find_position_in_vec(const std::vector<node *> &data, int search);
+int find_position_in_vec(const std::vector<Node *> &data, int search);
 
-class node {
+class Node {
 public:
     int city_name;
-    std::vector<node *> nodes;
+    std::vector<Node *> nodes;
 
     /// weight leading to this city
     /// first one of course has weight 0
     /// so it's cost of coming into
-    int weight;
+    int weight_;
 
     /// ptr to father object
-    node *father;
+    Node *father;
 
-    node(int name) : city_name(name) {
+    Node(int name) : city_name(name) {
         father = nullptr;
-        weight = 0;
+        weight_ = 0;
 
     };
 
-    node(int cityName, int weight) : weight(weight), city_name(cityName) {
+    Node(int cityName, int weight) : weight_(weight), city_name(cityName) {
         father = nullptr;
     };
 
-    node &operator=(const node &other) {
+    Node &operator=(const Node &other) {
         if (this == &other) return *this;
 
         if (other.father != nullptr)father = other.father;
         else father = nullptr;
 
         city_name = other.city_name;
-        weight = other.weight;
+        weight_ = other.weight_;
 
         nodes = other.nodes;
 
@@ -105,21 +105,21 @@ public:
 
 
 
-    bool operator==(const node &other) const {
+    bool operator==(const Node &other) const {
         return city_name == other.city_name;
     }
 
-    bool operator!=(const node &other) const {
+    bool operator!=(const Node &other) const {
         return city_name != other.city_name;
     }
 
 
     /// creates a copy of a node (with all children)
     /// and connects this copy to current node
-    void append_in_place(const node &other, int weight) {
+    void append_in_place(const Node &other, int weight) {
 
-        nodes.push_back(new node(other));
-        nodes.back()->weight = weight;
+        nodes.push_back(new Node(other));
+        nodes.back()->weight_ = weight;
         nodes.back()->father = this;
 
     }
@@ -134,7 +134,7 @@ public:
 
         for (unsigned int i = 0; i < nodes.size(); i++) {
 
-            if (nodes[i]->weight < minimal_value) minimal_value = nodes[i]->weight;
+            if (nodes[i]->weight_ < minimal_value) minimal_value = nodes[i]->weight_;
 
             temp_int = nodes[i]->minimal_route_to(to, minimal_value);
             if (temp_int != MILLION) return temp_int;
@@ -144,15 +144,15 @@ public:
         return MILLION;
     }
 
-    node *search(int destination) {
+    Node *Search(int destination) {
 
         if (city_name == destination) return this;
         if (nodes.empty()) return nullptr;
 
-        node *ptr_to_return = nullptr;
+        Node *ptr_to_return = nullptr;
 
         for (auto i : nodes) {
-            ptr_to_return = i->search(destination);
+            ptr_to_return = i->Search(destination);
             if (ptr_to_return != nullptr) return ptr_to_return;
         }
 
@@ -163,19 +163,20 @@ public:
         else return father->ultimate_father();
 
     }
-    node *ultimate_father_ptr() {
+    Node *ultimate_father_ptr() {
 
         if (father == nullptr) return this;
         else return father->ultimate_father_ptr();
 
     }
-    ~node() {
+    ~Node() {
        nodes.clear();
     };
 
-    friend std::ostream &operator<<(std::ostream &out, const node &dt) {
+    friend std::ostream &operator<<(std::ostream &out, const Node &dt) {
         out << "-------------------------\n";
-        out << cc(red) << "name: " << dt.city_name << " weight: " << dt.weight << " children: " << dt.nodes.size()
+        out << cc(red) << "name: " << dt.city_name << " weight: " << dt.weight_
+            << " children: " << dt.nodes.size()
             << "\n";
 
         for (auto i:dt.nodes) {
@@ -191,7 +192,8 @@ public:
 
     void show(int depth = 1) {
         for (int i = 0; i < depth; i++) std::cout << "  ";
-        std::cout << "name: " << city_name << " weight: " << weight << " father: " << father->city_name << " children: "
+        std::cout << "name: " << city_name << " weight: " << weight_
+                  << " father: " << father->city_name << " children: "
                   << nodes.size()
                   << "\n";
 
@@ -209,9 +211,9 @@ public:
 
 };
 
-int road_trips(int from, int to, int pssngrs, node &tree);
+int road_trips(int from, int to, int pssngrs, Node &tree);
 
-node *make_root(node *target);
+Node *make_root(Node *target);
 
 int main() {
 
@@ -244,7 +246,7 @@ int main() {
 
     SHOW_VEC(tab);
 
-    std::vector<node> forest;
+    std::vector<Node> forest;
 
     for (auto i : tab) {
         if (std::find(forest.begin(), forest.end(), i.from) == forest.end()) {
@@ -253,13 +255,13 @@ int main() {
             // a nie znamy ich nazwa,
             // wiec szukam czy mam juz taki wierzcholek w lesie
             // i jak nie to dodajemy do lasu
-            forest.push_back(node(i.from));
+            forest.push_back(Node(i.from));
         }
 
         if (std::find(forest.begin(), forest.end(), i.to) == forest.end()) {
             //to samo co wyzej ale moglo byc tak ze jakis wierzcholek byl w to, a nie bylo go w from
 
-            forest.push_back(node(i.to));
+            forest.push_back(Node(i.to));
         }
     }
 
@@ -271,8 +273,8 @@ int main() {
         assert(i < tab.size());
         /// so we have vector of empty nodes
         /// now we will be arranging them based on connections array a.k.a. tab <- it's eliza's idea not mine
-        /// first we need to find node that will become father a.k.a. "from"
-        node *from_city_ptr = find_in_vec(forest, tab[i].from);
+        /// first we need to Find node that will become father a.k.a. "from"
+        Node *from_city_ptr = find_in_vec(forest, tab[i].from);
 
 
         /// now we need to know which tree she belongs to
@@ -284,14 +286,14 @@ int main() {
 
 
         /// now we need to do the same for second argument a.k.a "to"
-        node *to_city_ptr = find_in_vec(forest, tab[i].to);
+        Node *to_city_ptr = find_in_vec(forest, tab[i].to);
         int to_origin_city_name = to_city_ptr->ultimate_father();
 
 
 
         /// but if the "to" city can be already deleted from forest
         /// therefore already assigned to some bigger tree
-        /// in that case to will be forest.size()
+        /// in that case to will be forest.Size()
         int to_origin_tree = find_position_in_vec(forest, to_origin_city_name);
 
 
@@ -302,14 +304,14 @@ int main() {
 
 
         /// now we need to make sure that "to" is root of a tree
-        node *root = make_root(to_city_ptr);
+        Node *root = make_root(to_city_ptr);
 
 
         /// now we merge two trees into one big one
         from_city_ptr->append_in_place(*root, tab[i].weight * -1);
 
 
-        /// and shrink size of the forest
+        /// and shrink Size of the forest
         forest.erase(forest.begin() + to_origin_tree);
         ///kk new connection
 
@@ -319,8 +321,7 @@ int main() {
     std::cout << cc(red) << "last tree: ";
     SHOW_VEC(forest);
 
-
-    node minimal_spanning_tree = forest[0];
+    Node minimal_spanning_tree = forest[0];
     // std::cout << cc(red) << minimal_spanning_tree;
 
     int from_user;
@@ -347,21 +348,20 @@ int main() {
 }
 
 
-int road_trips(int from, int to, int pssngrs, node &tree) {
+int road_trips(int from, int to, int pssngrs, Node &tree) {
 
-    if (tree.search(from)->search(to) != nullptr) {
-        return tree.search(from)->minimal_route_to(to);
+    if (tree.Search(from)->Search(to) != nullptr) {
+        return tree.Search(from)->minimal_route_to(to);
 
-    } else return tree.search(to)->minimal_route_to(from);
+    } else return tree.Search(to)->minimal_route_to(from);
     assert(false);
 }
 
-
-node *find_in_vec(std::vector<node> &data, int city) {
-    node *temp = nullptr;
+Node *find_in_vec(std::vector<Node> &data, int city) {
+  Node *temp = nullptr;
     for (auto &i : data) {
 
-        temp = i.search(city);
+        temp = i.Search(city);
         if (temp != nullptr) return temp;
 
     }
@@ -370,7 +370,7 @@ node *find_in_vec(std::vector<node> &data, int city) {
 }
 
 
-int find_position_in_vec(const std::vector<node> &data, int search) {
+int find_position_in_vec(const std::vector<Node> &data, int search) {
     for (int i = 0; i < data.size(); i++) {
         if (data[i].city_name == search)
             return i;
@@ -378,7 +378,7 @@ int find_position_in_vec(const std::vector<node> &data, int search) {
     return data.size();
 }
 
-int find_position_in_vec(const std::vector<node *> &data, int search) {
+int find_position_in_vec(const std::vector<Node *> &data, int search) {
     for (int i = 0; i < data.size(); i++) {
         if (data[i]->city_name == search)
             return i;
@@ -386,20 +386,19 @@ int find_position_in_vec(const std::vector<node *> &data, int search) {
     return data.size();
 }
 
-
-node *make_root(node *target) {
+Node *make_root(Node *target) {
     if (target->father == nullptr) return target;
 
-    node *ultimate_father = make_root(target->father);
+    Node *ultimate_father = make_root(target->father);
 
-    target->nodes.push_back(new node(*ultimate_father));
+    target->nodes.push_back(new Node(*ultimate_father));
 
 
-    target->nodes.back()->weight = target->weight;
+    target->nodes.back()->weight_ = target->weight_;
     target->nodes.back()->father = target;
 
 
-    /// find ptr to myself in father nodes vector
+    /// Find ptr to myself in father nodes vector
     int my_position_in_fathers_nodes = find_position_in_vec(target->nodes.back()->nodes, target->city_name);
 
     assert(target->nodes.back()->nodes.size() == 0);
@@ -411,7 +410,7 @@ node *make_root(node *target) {
     target->nodes.back()->nodes.erase(target->nodes.back()->nodes.begin() + my_position_in_fathers_nodes);
 
     target->father = nullptr;
-    target->weight = 0;
+    target->weight_ = 0;
     return target;
 
 }

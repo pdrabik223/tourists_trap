@@ -42,63 +42,62 @@ struct threesome {
 
 };
 
-using threevec = std::vector<threesome>;
+using Threevec = std::vector<threesome>;
 
 
-struct node {
+struct Node {
 
     /// value of a road leading to me
     /// now if node is root road leading to me doesn't exist therefore weight = 0
 
-    int weight;
+    int weight_;
 
     /// my name
-    int name;
+    int name_;
 
     /// ptrs to my children
-    std::vector<node *> children;
+    std::vector<Node *> children_;
 
-    node() {
-        /// the names were defined as "not bigger than 32767" so by default we set it as just above the given range
-        name = 32768;
-        weight = 0;
-        children = {};
+    Node() {
+        /// the names were defined as "not bigger than 32767" so by default we Set it as just above the given range
+        name_ = 32768;
+        weight_ = 0;
+        children_ = {};
 
     }
 
-    explicit node(int name) : name(name) {
-        weight = 0;
-        children = {};
+    explicit Node(int name) : name_(name) {
+      weight_ = 0;
+      children_ = {};
     }
 
-    node(int name, int weight) : name(name), weight(weight) {
-        children = {};
+    Node(int name, int weight) : name_(name), weight_(weight) {
+      children_ = {};
     }
 
     bool operator==(int other_name) const {
-        return name == other_name;
+        return name_ == other_name;
     }
 
     bool operator!=(int other_name) const {
-        return name == other_name;
+        return name_ == other_name;
     }
 
-    void append(threesome connection) {
-        find(connection.from)->
-                children.push_back(new node(connection.to, connection.weight));
+    void Append(threesome connection) {
+      Find(connection.from)->children_.push_back(new Node(connection.to, connection.weight));
     }
 
-    void set(threesome connection) {
-        weight = 0;
-        name = connection.from;
-        children.push_back(new node(connection.to, connection.weight));
+    void Set(threesome connection) {
+      weight_ = 0;
+      name_ = connection.from;
+      children_.push_back(new Node(connection.to, connection.weight));
     }
 
-    node *find(int search_name) {
-        if (name == search_name) return this;
+    Node *Find(int search_name) {
+        if (name_ == search_name) return this;
 
-        for (auto i:children) {
-            node *temp_ptr = i->find(search_name);
+        for (auto i: children_) {
+          Node *temp_ptr = i->Find(search_name);
             if (temp_ptr) return temp_ptr;
         }
         return nullptr;
@@ -106,13 +105,13 @@ struct node {
 
     void show(std::map<int ,std::string>& node_dictionary) {
 
-        for (auto &i : children) {
-            std::cout << node_dictionary[name]<<" ";
-            std::cout <<node_dictionary[i->name]<<" " ;
-            std::cout << i->weight<<"\n" ;
+        for (auto &i : children_) {
+            std::cout << node_dictionary[name_]<<" ";
+            std::cout <<node_dictionary[i->name_]<<" " ;
+            std::cout << i->weight_ <<"\n" ;
 
         }
-        for (auto &i : children) {
+        for (auto &i : children_) {
             i->show(node_dictionary);
         }
     }
@@ -122,46 +121,46 @@ struct node {
 };
 
 /// bool hash table<br>
-/// i.e. hash table that is filled with booleans<br>
+/// i.e. hash table that is Filled with booleans<br>
 /// fast and fail proof way to store big amounts of booleans<br>
 /// hash table concept assures fast addressing time<br>
-class bh_table {
+class BhTable {
 public:
-    bh_table(size_t size) {
-        allocated_size = size;
+  BhTable(size_t size) {
+    allocated_size_ = size;
         size_ = 0;
-        storage = new bool[allocated_size];
-        for (int i = 0; i < allocated_size; i++) {
-            storage[i] = false;
+        storage_ = new bool[allocated_size_];
+        for (int i = 0; i < allocated_size_; i++) {
+          storage_[i] = false;
         }
     };
 
-    void append(size_t value) {
+    void Append(size_t value) {
         assert(value > 0); /// if for whatever reason we have node name 0
         --value; /// that's because in our example node names start at one;
-        assert(value < allocated_size);
-        if (storage[value]) return;
-        storage[value] = true;
+        assert(value < allocated_size_);
+        if (storage_[value]) return;
+        storage_[value] = true;
         ++size_;
     }
 
     bool &operator[](size_t index) {
         assert(index >= 0); /// if for whatever reason we have node name 0
         --index; /// that's because in our example node names start at one;
-        assert(index < allocated_size);
-        return storage[index];
+        assert(index < allocated_size_);
+        return storage_[index];
     }
 
-    ~bh_table() { delete[] storage; }
+    ~BhTable() { delete[] storage_; }
 
-    size_t size() const { return size_; }
+    size_t Size() const { return size_; }
 
-    bool filled() const { return size_ == allocated_size; }
+    bool Filled() const { return size_ == allocated_size_; }
 
 protected:
-    size_t allocated_size;
+    size_t allocated_size_;
     size_t size_;
-    bool *storage;
+    bool *storage_;
 };
 
 int main() {
@@ -183,7 +182,7 @@ int main() {
     }
     int number_of_connections;
     std::cin >> number_of_connections;
-    threevec node_connections;
+    Threevec node_connections;
     {
         int temp_from, temp_to, temp_weight;
         for (int i = 0; i < number_of_connections; i++) {
@@ -197,18 +196,18 @@ int main() {
     }
     /// end of data input
     /// first sort the received connections
-    std::sort(node_connections.begin(), node_connections.end());
+    std::sort(node_connections.begin(), node_conne ,ctions.end());
 
     /// next we declare the tree root, based on best connections in the graph
-    node root;
-    root.set(node_connections.front());
+    Node root;
+    root.Set(node_connections.front());
 
     /// next we need another vector that will hold the names of nodes already existing on three
     /// this is attempt to cut down time off accessing the list of elements on three
-    bh_table used_names(number_of_nodes);
+    BhTable used_names(number_of_nodes);
 
-    used_names.append(node_connections.front().from);
-    used_names.append(node_connections.front().to);
+    used_names.Append(node_connections.front().from);
+    used_names.Append(node_connections.front().to);
 
     assert(used_names[node_connections.front().from]);
     assert(used_names[node_connections.front().to]);
@@ -220,7 +219,7 @@ int main() {
     /// as long as all the cities aren't on the tree
     /// id est as long as all cities aren't connected
 
-    while (!used_names.filled()) {
+    while (!used_names.Filled()) {
 
         ///pick the next best connection, but it must already be some way connected ou our tree!
         /// and because our connections are two way connections we don't really have "from, to" relationship
@@ -229,8 +228,8 @@ int main() {
             if (used_names[node_connections[i].from] &&
                 !used_names[node_connections[i].to]) {
 
-                root.append(node_connections[i]);
-                used_names.append(node_connections[i].to);
+              root.Append(node_connections[i]);
+              used_names.Append(node_connections[i].to);
                 node_connections.erase(node_connections.begin() + i);
 
                 break;
@@ -239,8 +238,8 @@ int main() {
 
                 std::swap(node_connections[i].to, node_connections[i].from);
 
-                root.append(node_connections[i]);
-                used_names.append(node_connections[i].to);
+                root.Append(node_connections[i]);
+                used_names.Append(node_connections[i].to);
                 node_connections.erase(node_connections.begin() + i);
                 break;
             }
